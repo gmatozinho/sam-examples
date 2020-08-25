@@ -1,0 +1,52 @@
+{
+   "openapi": "3.0.0",
+   "info": {
+      "version": "2016-09-12T23:19:28Z",
+      "title": "PetStoreWithProxyResource"
+   },
+   "paths": {
+      "/{proxy+}": {
+         "x-amazon-apigateway-any-method": {
+            "parameters": [
+               {
+                  "name": "proxy",
+                  "in": "path",
+                  "required": true,
+                  "schema": {
+                     "type": "string"
+                  }
+               }
+            ],
+            "responses": {},
+            "x-amazon-apigateway-integration": {
+               "responses": {
+                  "default": {
+                     "statusCode": "200"
+                  }
+               },
+               "requestParameters": {
+                  "integration.request.path.proxy": "method.request.path.proxy"
+               },
+               "uri": "http://petstore-demo-endpoint.execute-api.com/petstore/{proxy}",
+               "passthroughBehavior": "when_no_match",
+               "httpMethod": "ANY",
+               "cacheNamespace": "rbftud",
+               "cacheKeyParameters": [
+                  "method.request.path.proxy"
+               ],
+               "type": "http_proxy"
+            }
+         }
+      }
+   },
+   "servers": [
+      {
+         "url": "https://4z9giyi2c1.execute-api.us-east-1.amazonaws.com/{basePath}",
+         "variables": {
+            "basePath": {
+              "default": "/test"
+            }
+         }
+      }
+   ]
+}

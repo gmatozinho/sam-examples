@@ -1,0 +1,103 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: 'test-api-gateway
+
+  Sample SAM Template for test-api-gateway
+
+  '
+Globals:
+  Function:
+    Timeout: 900
+Parameters:
+  slackToken:
+    Description: Env
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /config/global/slack-token
+Resources:
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service: lambda.amazonaws.com
+          Action: sts:AssumeRole
+      Policies:
+      - PolicyName: LambdaExecutionPolicy
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action:
+            - logs:*
+            Resource: '*'
+  ApiPetsStore:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: test
+      DefinitionUri: s3://api-gateway-smartpag/3a72f391c5a65715b7ddb2f49319c250
+  ApiSmartpag:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: test
+      DefinitionUri: s3://api-gateway-smartpag/db55226f1ed7ceb26e1e2c67017b13aa
+  ApiTest:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: test
+      DefinitionUri: s3://api-gateway-smartpag/cce2195cae4f89c23e6f09cb44e7f138
+  ApiFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Timeout: 61
+      FunctionName: smartpagApi
+      CodeUri: s3://api-gateway-smartpag/b7610de906e1af95c1ceff90331aba5f
+      Handler: app.lambdaHandler
+      Runtime: nodejs12.x
+      Role:
+        Fn::GetAtt:
+        - LambdaExecutionRole
+        - Arn
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            Path: /v1
+            Method: get
+  NotificationSlackFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Timeout: 62
+      FunctionName: smartpagNotificationSlack
+      CodeUri: s3://api-gateway-smartpag/b7610de906e1af95c1ceff90331aba5f
+      Handler: slack.lambdaHandler
+      Runtime: nodejs12.x
+      Role:
+        Fn::GetAtt:
+        - LambdaExecutionRole
+        - Arn
+      Environment:
+        Variables:
+          SLACK_TOKEN:
+            Ref: slackToken
+      Events:
+        DTISchedule:
+          Type: Schedule
+          Properties:
+            Schedule: rate(2 hours)
+            Name: smartpag-notification-slack
+            Description: Job de base do polling
+            Enabled: true
+Outputs:
+  ApiUrl:
+    Description: API Gateway endpoint URL for Prod stage for Api function
+    Value:
+      Fn::Sub: https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/v1/
+  ApiFunction:
+    Description: Api Lambda Function ARN
+    Value:
+      Fn::GetAtt:
+      - ApiFunction
+      - Arn

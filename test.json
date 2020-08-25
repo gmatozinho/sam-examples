@@ -1,0 +1,40 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "version": "2016-09-12T23:19:28Z",
+    "title": "Testando uma zoeira proxy para o smartpag"
+  },
+  "paths": {
+    "/{proxy+}": {
+      "x-amazon-apigateway-any-method": {
+        "parameters": [
+          {
+            "name": "proxy",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {},
+        "x-amazon-apigateway-integration": {
+          "responses": {
+            "default": {
+              "statusCode": "200"
+            }
+          },
+          "requestParameters": {
+            "integration.request.path.proxy": "method.request.path.proxy"
+          },
+          "uri": "https://2dkw34c3z7.execute-api.us-east-1.amazonaws.com/dev/{proxy}",
+          "passthroughBehavior": "WHEN_NO_MATCH",
+          "httpMethod": "ANY",
+          "cacheNamespace": "rbftud",
+          "cacheKeyParameters": ["method.request.path.proxy"],
+          "type": "http_proxy"
+        }
+      }
+    }
+  }
+}
