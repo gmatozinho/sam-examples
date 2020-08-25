@@ -1,6 +1,7 @@
 *.sh
 *.vscode
 package-lock.json
+packaged.yaml
 # Created by https://www.gitignore.io/api/osx,node,linux,windows
 
 ### Linux ###
